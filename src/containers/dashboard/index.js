@@ -108,7 +108,7 @@ class Dashboard extends React.Component {
       } else {
         // visit https://goto.ui.vision/x/idehelp?help=firefox_access_data_permission in new tab 
         Ext.tabs.create({
-          url: 'https://goto.ui.vision/x/idehelp?help=firefox_access_data_permission',
+          url: 'https://aiscreen.io',
           active: true
         })
       }
@@ -121,76 +121,11 @@ class Dashboard extends React.Component {
     return (
       <div className="dashboard">
         <DashboardEditor bottomPanelHeight={this.state.bottomPanelHeight} />
-        <DashboardBottom onBottomPanelHeightChange={this.onBottomPanelHeightChange} />
-
-        <div className="online-help">
-          <Button className="btn-open-in-sidepanel"
-            disabled={this.state.isOpenInSidePanelBtnActive && this.props.player.status === C.PLAYER_STATUS.STOPPED ? false : true}
-            onClick={async () => {
-              console.log('this.state.tabIdToPlay:>>', this.state.tabIdToPlay)
-
-              if (Ext.isFirefox()) {
-                // below code doesn't work if it runs in IDE, but works if it runs in sidePanel or background
-                // Ext.sidebarAction.open()
-                // firefox issue as expected: sidebarAction.open may only be called from a user input handler
-                // csIpc.ask('PANEL_SHOW_SIDEBAR') 
-
-                const userResponse = confirm('To open the sidebar, click OK and then click the extension icon in the toolbar.')
-                if (!userResponse) return  
-          
-                await this.props.updateConfig({ ["oneTimeShowSidePanel"]: true }) 
-                
-                getSaveTestCase().save().then(() => {
-                    window.close()
-                }).catch((err) => {
-                  console.log('getSaveTestCase err:>>', err)
-                })    
-                             
-                return
-              } else {
-
-                await chrome.sidePanel.open({
-                  tabId: this.state.tabIdToPlay
-                }).then((x) => {
-                  getSaveTestCase().save().then(() => {
-                    window.close()
-                  }).catch((err) => {
-                    console.log('getSaveTestCase err:>>', err)
-                  })
-                }).catch((err) => {
-                  console.log('#25: open', err)
-                })
-              }
-            }}
-          >
-            <FontAwesomeIcon icon={faTableColumns} />
-            <span>Open in Side Panel</span> 
-          </Button>
-          {
-            this.state.permissionRequired &&  
-            <Button
-              className="btn-request-permission"
-              onClick={() => {
-               this.onGrantPermission()
-              }}
-            >
-            <span>Tabs Permission Required</span> 
-          </Button>
-          }
-          <div style={{ visibility: isWindows ? 'visible' : 'hidden' }}>
-            <a href="https://goto.ui.vision/x/idehelp?help=visual" target="_blank"></a>
-          </div>
-          <div>
-            Ui.Vision Community:&nbsp;
-            <a href="https://goto.ui.vision/x/idehelp?help=forum" target="_blank">Forums</a>&nbsp;|&nbsp; 
-            <a href="https://goto.ui.vision/x/idehelp?help=docs" target="_blank">Docs</a>&nbsp;|&nbsp;
-            <a href="https://goto.ui.vision/x/idehelp?help=github" target="_blank">Open-Source</a>
-          </div>
-        </div>
       </div>
     )
   }
 }
+// <DashboardBottom onBottomPanelHeightChange={this.onBottomPanelHeightChange} />\
 
 export default connect(
   state => ({ 

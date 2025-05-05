@@ -1569,4 +1569,71 @@ const loadConfig = () => {
   })
 }
 
+// --- AIScreen Frontend to Extension Communication Listener ---
+console.log("AIScreen Sync: Setting up listener for messages FROM frontend.");
+
+window.addEventListener('message', (event) => {
+  // Basic security checks
+  // 1. Check origin: Ensure the message is from the same window (the page, not another extension/iframe)
+  //    Adjust 'https://aiscreen.com' if you need to be more/less specific (e.g., include subdomains or specific ports)
+  // if (event.source !== window || event.origin !== 'https://aiscreen.com') {
+  //   return;
+  // }
+  // Note: A simpler check if the page isn't expected to have complex iframe structures:
+  if (event.source !== window) {
+      return;
+  }
+
+  const messageData = event.data;
+
+  // 2. Check message structure: Look for a specific indicator that this message is for the extension
+  if (messageData && messageData.direction === 'AISCREEN_TO_EXTENSION') {
+    console.log('AIScreen Sync: Content script received message FROM frontend:', messageData);
+
+    // 3. Relay the message to the extension's background script/service worker
+    chrome.runtime.sendMessage({
+      type: messageData.type, // Forward the type from the frontend message
+      payload: messageData.payload // Forward the payload
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('AIScreen Sync: Error sending message to background:', chrome.runtime.lastError.message);
+        // Optionally, send an error back to the frontend
+        window.postMessage({ direction: 'EXTENSION_TO_AISCREEN', type: 'MESSAGE_ERROR', payload: chrome.runtime.lastError.message, originalType: messageData.type }, event.origin);
+      } else {
+        console.log('AIScreen Sync: Background script response:', response);
+        // Optionally, send the background script's response back to the frontend
+        window.postMessage({ direction: 'EXTENSION_TO_AISCREEN', type: 'MESSAGE_RESPONSE', payload: response, originalType: messageData.type }, event.origin);
+      }
+    });
+  } // else: It's a message not intended for the extension, ignore it.
+});
+
+console.log("AIScreen Sync: Listener for messages FROM frontend is active.");
+// --- End AIScreen Frontend to Extension Communication Listener ---
+
+
+// --- AIScreen Macro Sync Listener ---
+console.log("AIScreen Sync: Content Script Source Loaded.");
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // Check if the message type is the one we expect
+  if (request.type === 'MACRO_UPDATED') {
+    console.log('AIScreen Sync: Content Script received MACRO_UPDATED:', request.payload);
+
+    // Forward the data to the actual webpage's JavaScript context using a Custom Event.
+    window.dispatchEvent(new CustomEvent('AIScreenMacroUpdated', { detail: request.payload }));
+
+    // Optional: Acknowledge message receipt
+    sendResponse({ received: true });
+    return true; // Keep message channel open for async response if needed later
+  }
+
+  // Return false if the message is not handled by this listener
+  // Important if other listeners might exist in this content script
+  return false;
+});
+
+console.log("AIScreen Sync: Listener is active in content script source.");
+// --- End AIScreen Macro Sync Listener ---
+
 init()

@@ -241,7 +241,7 @@ class SidebarTestCases extends React.Component {
     return (
       <div className="sidebar-macros">
         {filteredMacroFileNodeData.length === 0 ? (
-          <div className="no-data">No macro found</div>
+          <div className="no-data">No record found</div>
         ) : null}
         <FileTree
           nodes={filteredMacroFileNodeData}
@@ -745,7 +745,7 @@ class SidebarTestCases extends React.Component {
             disabled={!getLicenseService().canPerform(Feature.Edit)}
             onClick={this.addTestCase}
           >
-            + Macro
+            + Record
           </Button>
           <Dropdown
             menu={{ items: this.testCaseMenu() }}

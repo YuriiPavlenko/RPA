@@ -40,8 +40,8 @@ If you have any questions, please contact us at TEAM AT UI.VISION - Thanks!
 ```bash
 npm i -f
 
-npm run build   	
-npm run build-ff 	
+npm run build   	// build for chrome
+npm run build-ff 	// build for firefox
 ```
 
 And the build files are in `dist` and `dist_ff` folders.
@@ -50,7 +50,8 @@ And the build files are in `dist` and `dist_ff` folders.
 ```bash
 npm i -f
 
-npm run ext
+npm run start 	// start for chrome
+npm run start-ff 	// start for firefox
 ```
 
 The built files during development are also in `dist` and `dist_ff` folders

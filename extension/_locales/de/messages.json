@@ -1,14 +1,14 @@
 {
   "name": {
-    "message": "Ui.Vision",
+    "message": "AIScreen Recorder",
     "description": "extension name"
   },
   "description": {
-    "message": "Open-Source Robotic Process Automation (RPA) mit Selenium IDE für die Web und Desktop Test Automatisierung und Datenextraktion.",
+    "message": "AIScreen Recorder lets you record your login steps.",
     "description": "extension description"
   },
   "short_name": {
-    "message": "Ui.Vision",
+    "message": "AISR",
     "description": "extension short_name"
   }
 }

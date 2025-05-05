@@ -31,6 +31,8 @@ import { SIDEPANEL_TAB_ID } from '../common/ipc/ipc_bg_cs'
 import { checkIfSidePanelOpen } from '@/ext/common/sidepanel'
 import interceptLog from '@/common/intercept_log'
 import { getWindowSize } from '../common/resize_window'
+import { normalizeCommand } from '../models/test_case_model'
+import { posix as path } from '../common/lib/path'
 
 const downloadMan = new DownloadMan();
 
@@ -843,6 +845,61 @@ const pacListener = (data) => {
 // All messages from content script starts with 'CS_'
 const onRequest = async (cmd, args) => {
   const state = await getState()
+
+  // --- Handle messages from aiscreen.io Frontend ---
+  if (cmd === 'MACRO_UPDATED') {
+    const macroData = args; // Assuming args directly contains the payload forwarded by content script
+    // Use name as the identifier
+    const macroName = macroData?.name;
+    const commands = macroData?.commands;
+
+    // Validate required data (name and commands)
+    if (macroName && commands) {
+      console.log(`Background: Received MACRO_UPDATED from frontend for name: ${macroName}`);
+      try {
+        const macroStorage = getStorageManager().getMacroStorage();
+
+        // --- Find the macro's full path (ID) by its name --- 
+        const allMacros = await macroStorage.list('/'); // Assuming macros are at the root, adjust if needed
+        const targetMacroEntry = allMacros.find(entry => entry.isFile && entry.name === macroName);
+
+        if (!targetMacroEntry) {
+          throw new Error(`Macro with name '${macroName}' not found.`);
+        }
+        const fullPath = targetMacroEntry.fullPath; // Use fullPath as the ID for storage operations
+        // -----------------------------------------------------
+
+        // Read the existing macro using its path/ID
+        const existingMacro = await macroStorage.read(fullPath, 'Text');
+
+        // Prepare the updated macro data, ensuring commands are normalized
+        const updatedMacro = {
+          ...existingMacro, // Keep existing properties
+          name: macroName, // Ensure name is consistent
+          data: {
+            commands: commands.map(normalizeCommand) // Normalize commands before saving
+          },
+          updateTime: new Date() * 1 // Update timestamp
+        };
+
+        // Overwrite the macro in storage using its path/ID
+        await macroStorage.write(fullPath, updatedMacro);
+        console.log(`Background: Successfully updated macro: ${macroName} (Path: ${fullPath})`);
+
+        // Optional: Notify the UI (panel/sidebar) that data changed if necessary
+        // e.g., getPanelTabIpc().then(ipc => ipc.ask('MACRO_LIST_UPDATED'));
+
+        return { success: true, message: `Macro ${macroName} updated.` }; // Send success response
+      } catch (error) {
+        console.error(`Background: Error updating macro ${macroName}:`, error);
+        throw new Error(`Failed to update macro: ${error.message}`);
+      }
+    } else {
+      console.warn('Background: Received invalid MACRO_UPDATED message from frontend (missing name or commands):', macroData);
+      throw new Error('Invalid MACRO_UPDATED payload received.');
+    }
+  }
+  // --- End Frontend Message Handler ---
 
   if (cmd !== 'CS_ACTIVATE_ME' && cmd !== 'TIMEOUT') {
     log('onAsk', cmd, args)

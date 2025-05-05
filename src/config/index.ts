@@ -5,14 +5,14 @@ const platform = Ext.isFirefox() ? 'firefox' : 'chrome'
 export default {
   preinstall: {
     version: '5.8.8',
-    macroFolder: '/Demo'
+    macroFolder: '/'
   },
   nativeMessaging: {
     idleTimeBeforeDisconnect: 1e4 // 10 seconds
   },
-  urlAfterUpgrade: 'https://goto.ui.vision/x/idehelp?help=k_update',
-  urlAfterInstall: 'https://goto.ui.vision/x/idehelp?help=k_welcome',
-  urlAfterUninstall: 'https://goto.ui.vision/x/idehelp?help=k_why',
+  urlAfterUpgrade: 'https://aiscreen.io',
+  urlAfterInstall: 'https://aiscreen.io',
+  urlAfterUninstall: 'https://aiscreen.io',
   performanceLimit: {
     fileCount: Infinity
   },
@@ -22,21 +22,21 @@ export default {
       xCommandCount: Infinity,
       xFileMacroCount: 10,
       proxyExecCount: Infinity,
-      upgradeUrl: 'https://goto.ui.vision/x/idehelp?help=k_xupgradepro'
+      upgradeUrl: 'https://aiscreen.io'
     },
     free: {
       ocrCommandCount: 250,
       xCommandCount: Infinity,
       xFileMacroCount: 20,
       proxyExecCount: Infinity,
-      upgradeUrl: 'https://goto.ui.vision/x/idehelp?help=k_xupgradepro'
+      upgradeUrl: 'https://aiscreen.io'
     },
     pro: {
       ocrCommandCount: 500,
       xCommandCount: Infinity,
       xFileMacroCount: Infinity,
       proxyExecCount: Infinity,
-      upgradeUrl: 'https://goto.ui.vision/x/idehelp?help=k_xupgrade_contactsupport'
+      upgradeUrl: 'https://aiscreen.io'
     }
   },
   xfile: {
@@ -54,12 +54,12 @@ export default {
   },
   license: {
     api: {
-      url: 'https://license1.ocr.space/api/status'
+          url: 'https://license1.ocr.space/api/status'
     }
   },
   icons: {
-    normal: 'logo38.png',
-    inverted: 'inverted_logo_38.png'
+    normal: 'logo_38.png',
+    inverted: 'logo_38.png'
   },
   forceMigrationRemedy: false,
   iframePostMessageTimeout: 500,

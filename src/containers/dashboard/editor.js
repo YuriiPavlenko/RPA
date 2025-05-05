@@ -1589,15 +1589,6 @@ class DashboardEditor extends React.Component {
                               display: 'flex',
                               justifyContent: 'space-between'
                             }}>
-                              {selectedCmd && selectedCmd.cmd ? (
-                                <a
-                                  style={{ marginRight: '10px', whiteSpace: 'nowrap' }}
-                                  href={`https://goto.ui.vision/x/idehelp?cmd=${selectedCmd.cmd.toLowerCase()}`}
-                                  target="_blank"
-                                >
-                                  Info for this command
-                                </a>
-                              ) : <span></span>}
                               <Button
                                 style={{ padding: '0 10px' }}
                                 title="Toggle comment"
@@ -1747,26 +1738,6 @@ class DashboardEditor extends React.Component {
             ]}
           >
           </Tabs>
-
-          {(isCVTypeForDesktop(config.cvScope) && ui.shouldEnableDesktopAutomation !== false) || ui.shouldEnableDesktopAutomation === true ? (
-            <div
-              className="vision-type"
-              onClick={() => {
-                this.props.updateUI({ showSettings: true, settingsTab: 'vision' })
-              }}
-            >
-              <ComputerSvg />
-              <span>Desktop mode</span>
-            </div>
-          ) : <div
-              className="vision-type"
-              onClick={() => {
-                this.props.updateUI({ showSettings: true, settingsTab: 'vision' })
-              }}
-            >
-              <BrowserSvg />
-            <span>Browser mode</span>
-        </div>}
         </div>
  
         {this.renderContextMenu()}

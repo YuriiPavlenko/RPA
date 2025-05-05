@@ -168,6 +168,47 @@ class Header extends React.Component {
       this.props.stopRecording();
       // Note: remove targetOptions from all commands
       this.props.normalizeCommands();
+
+      // Automatically save the test case and then send message
+      getSaveTestCase().save()
+        .then(() => {
+          // --- Start: Added message sending logic ---
+          console.log("Macro saved, attempting to send update message.");
+          const macroData = { // Prepare the data to send
+            name: this.getTestCaseName(),
+            commands: this.props.editing.commands,
+            // Include any other relevant metadata from this.props.editing.meta if needed
+            meta: this.props.editing.meta
+          };
+
+          // Find the tab(s) matching your controlled website URL pattern
+          const targetUrlPattern = '*://*.aiscreen.io/*'; // Target aiscreen.io and its subdomains
+
+          Ext.tabs.query({ url: targetUrlPattern }, (tabs) => {
+            if (tabs && tabs.length > 0) {
+              tabs.forEach(tab => {
+                Ext.tabs.sendMessage(tab.id, {
+                  type: 'MACRO_UPDATED', // Define a message type
+                  payload: macroData       // Send the macro JSON
+                })
+                .then(response => {
+                   console.log(`Message sent to tab ${tab.id}`, response);
+                })
+                .catch(error => {
+                  // Often happens if the content script isn't ready or doesn't exist
+                  console.warn(`Could not send message to tab ${tab.id}: ${error.message}. Ensure the content script is injected and listening.`);
+                });
+              });
+            } else {
+              console.log("No matching tabs found for URL pattern:", targetUrlPattern);
+            }
+          });
+          // --- End: Added message sending logic ---
+        })
+        .catch(error => {
+          console.error("Error saving test case:", error);
+          message.error("Failed to save macro."); // Inform user if save fails
+        });
     } else {
       console.log('startRecording:>> askPermission')
       const permissionResult = await this.askPermission()
@@ -289,10 +330,6 @@ class Header extends React.Component {
     this.setState({
       [field]: parseInt(value, 10),
     });
-  };
-
-  onClickSave = () => {
-    return getSaveTestCase().save();
   };
 
   getCurrentRecordedtab = async () => {
@@ -2798,10 +2835,10 @@ class Header extends React.Component {
                     })}
                   >
                     <p>Open-Source Ui.Vision PRO and Enterprise Editions are available 
-					  for users requiring Enterprise capabilities,
-					  including direct file storage, update management, and priority support services. 
-					  Should you have already acquired a license key for either the PRO or Enterprise Edition,
-					  please proceed to enter it below:
+					 	for users requiring Enterprise capabilities,
+					 	including direct file storage, update management, and priority support services. 
+					 	Should you have already acquired a license key for either the PRO or Enterprise Edition,
+					 	please proceed to enter it below:
                     </p>
                     <div className="actions">
                       <a href={getLicenseService().getUpgradeUrl()} target="_blank">
@@ -3015,23 +3052,7 @@ class Header extends React.Component {
 
             <Button.Group className="play-actions">
               <Button onClick={() => this.playCurrentMacro(true)}>Step</Button>
-              <Dropdown.Button
-                onClick={() => this.playCurrentMacro(false)}
-                menu={{
-                  items: [
-                    {
-                      key: "play_loop",
-                      label: "Play loop..",
-                      disabled: false,
-                    },
-                  ],
-                  onClick: onClickMenuItem,
-                  selectable: false,
-                  trigger: ["click"],
-                }}
-              >
-                <span>Play Macro</span>
-              </Dropdown.Button>
+              <Button onClick={() => this.playCurrentMacro(false)}>Play Record</Button>
             </Button.Group>
             {/* <Button onClick={async() => {
               await updateState({
@@ -3043,10 +3064,6 @@ class Header extends React.Component {
             }}>
               Send Command
             </Button> */}
-
-            <Button shape="circle" onClick={() => this.showSettingsModal()}>
-              <SettingOutlined />
-            </Button>
           </div>
         );
       }
@@ -3072,12 +3089,6 @@ class Header extends React.Component {
         >
           {src ? src.name : "Untitled"}
         </span>
-
-        {!isPlayerStopped ? null : (
-          <Button disabled={saveBtnState.disabled} onClick={this.onClickSave}>
-            <span>{saveBtnState.text}</span>
-          </Button>
-        )}
       </div>
     );
   }

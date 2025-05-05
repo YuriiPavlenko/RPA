@@ -1,19 +1,19 @@
 {
   "manifest_version": 3,
 
-  "name": "__MSG_name__",
-  "description": "__MSG_description__",
-  "short_name": "__MSG_short_name__",
+  "name": "AIScreen Recorder",
+  "description": "AIScreen Recorder lets you record your login steps.",
+  "short_name": "AISR",
   "default_locale": "en",
   "version": "9.5.3",
 
   "icons": {
-    "128": "logo128.png"
+    "128": "logo_128.png"
   },
 
   "action": {
     "default_icon": {
-      "38": "logo38.png"
+      "38": "logo_38.png"
     }
   },
 
